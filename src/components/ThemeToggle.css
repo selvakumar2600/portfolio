@@ -1,0 +1,92 @@
+/* ==========================================================================
+   THEME TOGGLE BUTTON STYLES (SVG Vector Sun / Moon)
+   ========================================================================== */
+
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  border-radius: 100px;
+  background: rgba(20, 25, 35, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-btn.is-light .theme-toggle-track {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.theme-svg {
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.sun-svg {
+  color: #F59E0B;
+  opacity: 0.4;
+}
+
+.moon-svg {
+  color: #38BDF8;
+  opacity: 0.9;
+}
+
+.theme-toggle-btn.is-light .sun-svg {
+  color: #D97706;
+  opacity: 0.95;
+}
+
+.theme-toggle-btn.is-light .moon-svg {
+  color: #94A3B8;
+  opacity: 0.4;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00f0ff 0%, #00d2ff 100%);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.35s ease, box-shadow 0.35s ease;
+  z-index: 2;
+}
+
+.theme-toggle-btn.is-light .theme-toggle-thumb {
+  transform: translateX(28px);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
+.theme-toggle-btn:hover .theme-toggle-track {
+  border-color: rgba(0, 240, 255, 0.5);
+}
+
+.theme-toggle-btn.is-light:hover .theme-toggle-track {
+  border-color: #2563EB;
+}
