@@ -4,7 +4,6 @@ import emailjs from '@emailjs/browser';
 // ──────────────────────────────────────────────────────────────
 //  Constants
 // ──────────────────────────────────────────────────────────────
-const STORAGE_KEY = 'portfolio_messages';
 const WHATSAPP_NUMBER = '919150831569';
 const MY_EMAIL = 'selvakumarb2406@gmail.com';
 const MY_PHONE = '+91 9150831569';
@@ -14,35 +13,6 @@ const MY_LOCATION = 'Tenkasi – 627811, Tamil Nadu';
 const EJS_SERVICE  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || '';
 const EJS_TEMPLATE = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
 const EJS_KEY      = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || '';
-
-// ──────────────────────────────────────────────────────────────
-//  Helpers
-// ──────────────────────────────────────────────────────────────
-function loadMessages() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveMessages(msgs) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs));
-}
-
-function formatTime(iso) {
-  const d = new Date(iso);
-  const now = new Date();
-  const diff = (now - d) / 1000;
-  if (diff < 60)    return 'Just now';
-  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-}
-
-function initials(name) {
-  return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
-}
 
 // ──────────────────────────────────────────────────────────────
 //  Toast
@@ -87,125 +57,6 @@ function CopyButton({ text }) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  InboxPanel
-// ──────────────────────────────────────────────────────────────
-function InboxPanel({ messages, unreadCount, onMarkAllRead, onClearAll }) {
-  const [search, setSearch] = useState('');
-  const [expanded, setExpanded] = useState(null);
-
-  const filtered = messages.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase()) ||
-    m.email.toLowerCase().includes(search.toLowerCase()) ||
-    m.message.toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="contact-inbox-panel">
-      {/* Header */}
-      <div className="contact-inbox-header">
-        <div className="contact-inbox-title-row">
-          <h3 className="contact-inbox-title">
-            <span className="contact-inbox-icon">📬</span>
-            Message Inbox
-          </h3>
-          {unreadCount > 0 && (
-            <span className="contact-badge contact-badge--pulse">{unreadCount}</span>
-          )}
-        </div>
-        <p className="contact-inbox-sub">Messages submitted via your contact form</p>
-      </div>
-
-      {/* Search */}
-      <div className="contact-search-wrap">
-        <svg className="contact-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none">
-          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-          <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-        <input
-          className="contact-search-bar"
-          type="text"
-          placeholder="Search messages…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          aria-label="Search messages"
-        />
-        {search && (
-          <button className="contact-search-clear" onClick={() => setSearch('')} aria-label="Clear search">×</button>
-        )}
-      </div>
-
-      {/* Actions */}
-      {messages.length > 0 && (
-        <div className="contact-inbox-actions">
-          {unreadCount > 0 && (
-            <button className="contact-inbox-action-btn" onClick={onMarkAllRead}>
-              ✓ Mark all read
-            </button>
-          )}
-          <button className="contact-inbox-action-btn contact-inbox-action-btn--danger" onClick={onClearAll}>
-            🗑 Clear all
-          </button>
-        </div>
-      )}
-
-      {/* Message List */}
-      <div className="contact-message-list">
-        {filtered.length === 0 ? (
-          <div className="contact-inbox-empty">
-            <div className="contact-inbox-empty-icon">💬</div>
-            <p>{search ? 'No messages match your search.' : 'No messages yet. Your inbox is empty!'}</p>
-            <p className="contact-inbox-empty-sub">Messages sent via the form will appear here.</p>
-          </div>
-        ) : (
-          filtered.map(msg => (
-            <div
-              key={msg.id}
-              className={`contact-message-item ${!msg.read ? 'contact-message-item--unread' : ''} ${expanded === msg.id ? 'contact-message-item--expanded' : ''}`}
-              onClick={() => setExpanded(expanded === msg.id ? null : msg.id)}
-            >
-              {/* Avatar */}
-              <div className="contact-msg-avatar">{initials(msg.name)}</div>
-
-              <div className="contact-msg-body">
-                <div className="contact-msg-top">
-                  <div className="contact-msg-meta">
-                    <span className="contact-msg-name">{msg.name}</span>
-                    {!msg.read && <span className="contact-msg-unread-dot" />}
-                  </div>
-                  <span className="contact-msg-time">{formatTime(msg.timestamp)}</span>
-                </div>
-                <div className="contact-msg-email">{msg.email}</div>
-                <p className="contact-msg-preview">
-                  {expanded === msg.id ? msg.message : `${msg.message.slice(0, 90)}${msg.message.length > 90 ? '…' : ''}`}
-                </p>
-                {expanded === msg.id && (
-                  <div className="contact-msg-full-actions">
-                    <a href={`mailto:${msg.email}?subject=Re: Your message`} className="contact-msg-reply-btn">
-                      ↩ Reply via Email
-                    </a>
-                    <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi ${encodeURIComponent(msg.name)}, thanks for reaching out!`} target="_blank" rel="noreferrer" className="contact-msg-reply-btn contact-msg-reply-btn--whatsapp">
-                      Reply on WhatsApp
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Footer count */}
-      {messages.length > 0 && (
-        <div className="contact-inbox-footer">
-          {filtered.length} of {messages.length} message{messages.length !== 1 ? 's' : ''}
-          {search && ` matching "${search}"`}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────
 //  Main ContactSection
 // ──────────────────────────────────────────────────────────────
 export default function ContactSection() {
@@ -213,14 +64,7 @@ export default function ContactSection() {
   const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState(null);
-  const [messages, setMessages] = useState(loadMessages);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [whatsappHover, setWhatsappHover] = useState(false);
-
-  // Compute unread on mount and when messages change
-  useEffect(() => {
-    setUnreadCount(messages.filter(m => !m.read).length);
-  }, [messages]);
 
   const dismissToast = useCallback(() => setToast(null), []);
 
@@ -233,22 +77,10 @@ export default function ContactSection() {
     e.preventDefault();
     if (sending) return;
 
-    // EmailJS not configured yet → fall back to local-only mode
     const emailConfigured = EJS_SERVICE && EJS_TEMPLATE && EJS_KEY &&
       EJS_SERVICE !== 'your_service_id_here';
 
     setSending(true);
-
-    // Build the local message record
-    const newMsg = {
-      id: Date.now().toString(),
-      name: formState.name,
-      email: formState.email,
-      subject: formState.subject || '(No subject)',
-      message: formState.message,
-      timestamp: new Date().toISOString(),
-      read: false,
-    };
 
     try {
       if (emailConfigured) {
@@ -266,15 +98,11 @@ export default function ContactSection() {
         );
         setToast({ type: 'success', message: '✉️ Message sent! I\'ll get back to you soon.' });
       } else {
-        // Simulate a short send delay for UX polish
-        await new Promise(r => setTimeout(r, 900));
-        setToast({ type: 'success', message: '📥 Message saved! (Configure EmailJS to also send emails.)' });
+        const subject = encodeURIComponent(formState.subject || `Portfolio Contact from ${formState.name}`);
+        const body = encodeURIComponent(`Name: ${formState.name}\nEmail: ${formState.email}\n\nMessage:\n${formState.message}`);
+        window.location.href = `mailto:${MY_EMAIL}?subject=${subject}&body=${body}`;
+        setToast({ type: 'success', message: `✉️ Opening email app to send your message to ${MY_EMAIL}` });
       }
-
-      // Save to local inbox
-      const updated = [newMsg, ...messages];
-      setMessages(updated);
-      saveMessages(updated);
 
       // Reset form
       setFormState({ name: '', email: '', subject: '', message: '' });
@@ -282,19 +110,6 @@ export default function ContactSection() {
       setToast({ type: 'error', message: '❌ Failed to send. Please try emailing directly.' });
     } finally {
       setSending(false);
-    }
-  };
-
-  const handleMarkAllRead = () => {
-    const updated = messages.map(m => ({ ...m, read: true }));
-    setMessages(updated);
-    saveMessages(updated);
-  };
-
-  const handleClearAll = () => {
-    if (window.confirm('Clear all messages from your inbox?')) {
-      setMessages([]);
-      saveMessages([]);
     }
   };
 
@@ -317,7 +132,7 @@ export default function ContactSection() {
               </p>
             </div>
 
-            {/* ── Top Row: Details + Form ── */}
+            {/* ── Details + Form ── */}
             <div className="contact-v2-top-grid">
 
               {/* ── Contact Details Card ── */}
@@ -378,7 +193,6 @@ export default function ContactSection() {
                   onMouseLeave={() => setWhatsappHover(false)}
                   aria-label="Chat on WhatsApp"
                 >
-                  {/* WhatsApp SVG Logo */}
                   <svg className="contact-wa-logo" viewBox="0 0 48 48" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M24 4C12.95 4 4 12.95 4 24c0 3.74 1.01 7.24 2.77 10.25L4 44l10.06-2.72A19.93 19.93 0 0 0 24 44c11.05 0 20-8.95 20-20S35.05 4 24 4z" fill="currentColor" fillOpacity="0.15"/>
                     <path d="M24 6.5C14.3 6.5 6.5 14.3 6.5 24c0 3.47.97 6.71 2.66 9.48L6.5 41.5l8.26-2.63A17.46 17.46 0 0 0 24 41.5c9.7 0 17.5-7.8 17.5-17.5S33.7 6.5 24 6.5z" fill="currentColor" fillOpacity="0.2"/>
@@ -493,25 +307,7 @@ export default function ContactSection() {
                     )}
                   </button>
                 </form>
-
-                {/* EmailJS not configured hint */}
-                {(!EJS_SERVICE || EJS_SERVICE === 'your_service_id_here') && (
-                  <div className="contact-v2-emailjs-hint">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                    EmailJS not configured — messages saved locally only. <a href="https://www.emailjs.com" target="_blank" rel="noreferrer">Set up EmailJS ↗</a>
-                  </div>
-                )}
               </div>
-            </div>
-
-            {/* ── Bottom: Inbox Panel (full width) ── */}
-            <div className="contact-v2-inbox-wrap">
-              <InboxPanel
-                messages={messages}
-                unreadCount={unreadCount}
-                onMarkAllRead={handleMarkAllRead}
-                onClearAll={handleClearAll}
-              />
             </div>
 
           </div>
