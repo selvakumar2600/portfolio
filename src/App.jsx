@@ -3,6 +3,7 @@ import './index.css';
 import LoadingScreen from './components/LoadingScreen';
 import ThemeToggle from './components/ThemeToggle';
 import ContactSection from './components/ContactSection';
+import heroPhoto from './assets/Professional_Photo-1.png';
 
 // ===== CUSTOM CURSOR =====
 function CustomCursor() {
@@ -536,7 +537,15 @@ export default function App() {
                 {/* Right: Profile image */}
                 <div className="hero-image-wrapper">
                   <div className="hero-image-glow" />
-                  <img src="/Professional_Photo-1.png" alt="B Selvakumar" className="hero-profile-img" />
+                  <img
+                    src={heroPhoto}
+                    alt="B Selvakumar"
+                    className="hero-profile-img"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = './Professional_Photo-1.png';
+                    }}
+                  />
                 </div>
               </div>
             </div>
